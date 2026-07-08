@@ -1,2 +1,2 @@
-# infotact-project-AcousticSpace-Deepfake-Detection
-Official Team Repository for Infotact Solutions Internship Project.
+# AcousticSpace
+Deepfake detection via Room Impulse Response (RIR) mismatch and breathing-pattern analysis.

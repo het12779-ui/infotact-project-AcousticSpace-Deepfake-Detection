@@ -1,0 +1,15 @@
+# Node
+node_modules/
+frontend/dist/
+
+# Python envs
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Data & model checkpoints
+*.pt
+*.ckpt
+ml/data/raw/
+ml/data/rirs/
