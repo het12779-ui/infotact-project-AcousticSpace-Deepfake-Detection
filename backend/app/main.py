@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import PredictionResponse, SegmentFlag
+from app.api.upload import router as upload_router
 import random
 
 app = FastAPI(title="AcousticSpace API")
@@ -11,6 +12,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(upload_router, prefix="/api")
 
 @app.get("/health")
 def health_check():
