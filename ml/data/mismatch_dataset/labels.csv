@@ -1,0 +1,11 @@
+filename,label,voice_room,background_room
+pair0_matched_small_room.wav,0,small_room,small_room
+pair0_mismatched_small_room_vs_medium_room.wav,1,small_room,medium_room
+pair1_matched_medium_room.wav,0,medium_room,medium_room
+pair1_mismatched_medium_room_vs_large_hall.wav,1,medium_room,large_hall
+pair2_matched_large_hall.wav,0,large_hall,large_hall
+pair2_mismatched_large_hall_vs_bathroom.wav,1,large_hall,bathroom
+pair3_matched_bathroom.wav,0,bathroom,bathroom
+pair3_mismatched_bathroom_vs_office.wav,1,bathroom,office
+pair4_matched_office.wav,0,office,office
+pair4_mismatched_office_vs_small_room.wav,1,office,small_room
