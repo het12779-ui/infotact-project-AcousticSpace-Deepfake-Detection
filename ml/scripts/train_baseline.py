@@ -3,7 +3,9 @@ from torch.utils.data import DataLoader, random_split, Dataset
 from transformers import ASTFeatureExtractor, ASTForAudioClassification
 import librosa
 import os
+import sys
 from evaluate_utils import compute_eer, compute_accuracy
+from dataset_loader import load_mismatch_dataset
 
 MODEL_ID = "MIT/ast-finetuned-audioset-10-10-0.4593"
 CHECKPOINT_DIR = "../checkpoints"
@@ -14,10 +16,10 @@ class SpoofDataset(Dataset):
         self.labels = labels
         self.feature_extractor = feature_extractor
         self.sr = sr
-
+        
     def __len__(self):
         return len(self.file_paths)
-
+        
     def __getitem__(self, idx):
         waveform, _ = librosa.load(self.file_paths[idx], sr=self.sr)
         inputs = self.feature_extractor(waveform, sampling_rate=self.sr, return_tensors="pt")
@@ -35,11 +37,9 @@ def evaluate(model, loader):
             probs = torch.softmax(outputs.logits, dim=-1)
             spoof_scores = probs[:, 1]
             preds = torch.argmax(probs, dim=-1)
-            
             all_labels.extend(labels.tolist())
             all_scores.extend(spoof_scores.tolist())
             all_preds.extend(preds.tolist())
-            
     acc = compute_accuracy(all_labels, all_preds)
     eer, _ = compute_eer(all_labels, all_scores)
     return acc, eer
@@ -47,24 +47,26 @@ def evaluate(model, loader):
 if __name__ == "__main__":
     os.makedirs(CHECKPOINT_DIR, exist_ok=True)
     feature_extractor = ASTFeatureExtractor.from_pretrained(MODEL_ID)
+    file_paths, labels = load_mismatch_dataset(dataset_dir="../data/mismatch_dataset")
     
-    # placeholder file list - swap for Het's data/mismatch_dataset/labels.csv once ready
-    file_paths = ["../data/samples/sample1.wav", "../data/samples/sample2.wav"] * 4
-    labels = [0, 1] * 4
-    
+    if len(file_paths) < 8:
+        print("Not enough samples in the mismatch dataset yet.")
+        print("Ask HetPatel to run build_mismatch_dataset.py with more voice samples first.")
+        sys.exit(1)
+        
+    print(f"Training on {len(file_paths)} real samples ({sum(labels)} mismatched, {len(labels) - sum(labels)} matched)")
     dataset = SpoofDataset(file_paths, labels, feature_extractor)
     train_size = int(0.75 * len(dataset))
     val_size = len(dataset) - train_size
     train_ds, val_ds = random_split(dataset, [train_size, val_size])
     
-    train_loader = DataLoader(train_ds, batch_size=2, shuffle=True)
-    val_loader = DataLoader(val_ds, batch_size=2)
-    
+    train_loader = DataLoader(train_ds, batch_size=4, shuffle=True)
+    val_loader = DataLoader(val_ds, batch_size=4)
     model = ASTForAudioClassification.from_pretrained(MODEL_ID, num_labels=2, ignore_mismatched_sizes=True)
+
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
-    
     best_eer = 1.0
-    for epoch in range(2):
+    for epoch in range(3):
         model.train()
         for batch in train_loader:
             labels_batch = batch.pop("labels")
