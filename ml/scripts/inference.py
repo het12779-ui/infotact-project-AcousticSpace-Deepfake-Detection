@@ -32,7 +32,6 @@ def predict_mismatch(audio_path: str, sr: int = 16000) -> dict:
         logits = model(**inputs).logits
         probs = torch.softmax(logits, dim=-1)[0]
         spoof_score = probs[1].item()
-    
     return {
         "is_fake": spoof_score > 0.5,
         "confidence": round(max(spoof_score, 1 - spoof_score), 3),
