@@ -48,7 +48,7 @@ def build_pair(voice_path, room_a, room_b, out_prefix):
 
 if __name__ == "__main__":
     os.makedirs(OUT_DIR, exist_ok=True)
-    rooms = ["small_room", "medium_room", "large_hall", "bathroom", "office"]
+    rooms = [os.path.splitext(os.path.basename(p))[0] for p in sorted(glob.glob(f"{RIR_DIR}/*.wav"))]
     voice_files = sorted(glob.glob(f"{SAMPLE_DIR}/*.wav"))
     if not voice_files:
         print(f"No voice samples found in {SAMPLE_DIR} - add some .wav files first.")
