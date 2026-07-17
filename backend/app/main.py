@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import PredictionResponse, SegmentFlag
+from app.core.history import log_prediction, get_history
 import sys
 import os
 import tempfile
@@ -34,6 +35,7 @@ async def predict(file: UploadFile = File(...)):
     finally:
         os.remove(tmp_path)
 
+    log_prediction(file.filename, result["is_fake"], result["confidence"])
     return PredictionResponse(
         filename=file.filename,
         is_fake=result["is_fake"],
@@ -42,3 +44,7 @@ async def predict(file: UploadFile = File(...)):
         breathing_score=result["breathing_score"],
         flagged_segments=[SegmentFlag(**s) for s in result["flagged_segments"]],
     )
+
+@app.get("/history")
+def history():
+    return {"history": get_history()}
