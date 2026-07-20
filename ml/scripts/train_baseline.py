@@ -7,7 +7,7 @@ import os
 import sys
 
 from evaluate_utils import compute_eer, compute_accuracy
-from dataset_loader import load_mismatch_dataset
+from dataset_loader import load_combined_dataset
 from augmentation import augment_waveform
 
 MODEL_ID = "MIT/ast-finetuned-audioset-10-10-0.4593"
@@ -56,7 +56,7 @@ if __name__ == "__main__":
     os.makedirs(CHECKPOINT_DIR, exist_ok=True)
     
     feature_extractor = ASTFeatureExtractor.from_pretrained(MODEL_ID)
-    file_paths, labels = load_mismatch_dataset(dataset_dir="../data/mismatch_dataset")
+    file_paths, labels = load_combined_dataset()
     
     if len(file_paths) < 8:
         print("Not enough samples yet - ask HetPatel to run generate_rirs.py + build_mismatch_dataset.py first.")
