@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import PredictionResponse, SegmentFlag
 from app.core.history import log_prediction, get_history
@@ -8,6 +8,9 @@ import tempfile
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "ml", "scripts"))
 from inference import predict_mismatch
+
+ALLOWED_EXTENSIONS = {".wav", ".mp3", ".flac", ".ogg", ".m4a"}
+MAX_FILE_SIZE_MB = 20
 
 app = FastAPI(title="AcousticSpace API")
 
@@ -22,16 +25,28 @@ app.add_middleware(
 def health_check():
     return {"status": "ok"}
 
-@app.post("/predict", response_model=PredictionResponse)
-async def predict(file: UploadFile = File(...)):
+@app.post("/api/v1/predict", response_model=PredictionResponse)
+async def predict_v1(file: UploadFile = File(...)):
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext not in ALLOWED_EXTENSIONS:
+        raise HTTPException(status_code=400, detail=f"Unsupported file type: {ext}")
+
     contents = await file.read()
-    suffix = os.path.splitext(file.filename)[1]
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
+    size_mb = len(contents) / (1024 * 1024)
+    if size_mb > MAX_FILE_SIZE_MB:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large ({size_mb:.1f}MB > {MAX_FILE_SIZE_MB}MB limit)",
+        )
+
+    with tempfile.NamedTemporaryFile(suffix=ext, delete=False) as tmp:
         tmp.write(contents)
         tmp_path = tmp.name
 
     try:
         result = predict_mismatch(tmp_path)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=f"Could not process audio file: {e}")
     finally:
         os.remove(tmp_path)
 
@@ -44,6 +59,10 @@ async def predict(file: UploadFile = File(...)):
         breathing_score=result["breathing_score"],
         flagged_segments=[SegmentFlag(**s) for s in result["flagged_segments"]],
     )
+
+@app.post("/predict", response_model=PredictionResponse)
+async def predict_legacy(file: UploadFile = File(...)):
+    return await predict_v1(file)
 
 @app.get("/history")
 def history():
