@@ -1,0 +1,6 @@
+filename,voice_rt60,voice_drr,bg_rt60,bg_drr
+sample1_pair0_mismatched_small_room_vs_medium_room.wav,0.5591249999999999,-40.097843,0.37537499999999996,-19.061657
+sample1_pair3_mismatched_bathroom_vs_office.wav,0.5251875,-38.31721,0.3757500000000001,-18.892979
+sample2_pair3_mismatched_bathroom_vs_office.wav,0.5317500000000001,-42.972046,0.37537499999999996,-18.932957
+sample5_pair0_matched_small_room.wav,0.5589374999999999,-40.001343,0.3751874999999999,-19.074924
+sample5_pair3_mismatched_bathroom_vs_office.wav,0.5248124999999999,-38.32554,0.375,-18.901142
