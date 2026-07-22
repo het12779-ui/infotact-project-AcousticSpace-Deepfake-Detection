@@ -24,10 +24,9 @@ if __name__ == "__main__":
     model = ASTForAudioClassification.from_pretrained(MODEL_ID, num_labels=2, ignore_mismatched_sizes=True)
     model.load_state_dict(torch.load(CHECKPOINT_PATH, map_location="cpu"))
     model.eval()
-    
+
     file_paths, labels = load_demo_set()
     all_scores, all_preds = [], []
-    
     print("Per-file results:")
     for path, true_label in zip(file_paths, labels):
         waveform, _ = librosa.load(path, sr=16000)
@@ -36,8 +35,8 @@ if __name__ == "__main__":
             logits = model(**inputs).logits
             probs = torch.softmax(logits, dim=-1)[0]
             spoof_score = probs[1].item()
-            pred = int(spoof_score > 0.5)
-            
+        
+        pred = int(spoof_score > 0.5)
         all_scores.append(spoof_score)
         all_preds.append(pred)
         
