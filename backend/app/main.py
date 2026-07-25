@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import PredictionResponse, SegmentFlag
 from app.core.history import log_prediction, get_history
@@ -67,3 +67,37 @@ async def predict_legacy(file: UploadFile = File(...)):
 @app.get("/history")
 def history():
     return {"history": get_history()}
+
+@app.websocket("/ws/predict")
+async def websocket_predict(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        contents = await websocket.receive_bytes()
+        await websocket.send_json({"stage": "received", "message": "File received"})
+        
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+            tmp.write(contents)
+            tmp_path = tmp.name
+            
+        await websocket.send_json({"stage": "extracting", "message": "Extracting audio features"})
+        try:
+            result = predict_mismatch(tmp_path)
+        except Exception as e:
+            await websocket.send_json({"stage": "error", "message": str(e)})
+            return
+        finally:
+            os.remove(tmp_path)
+            
+        await websocket.send_json({"stage": "running_model", "message": "Running AST classifier"})
+        await websocket.send_json({
+            "stage": "done",
+            "result": {
+                "is_fake": result["is_fake"],
+                "confidence": result["confidence"],
+                "rir_mismatch_score": result["rir_mismatch_score"],
+                "breathing_score": result["breathing_score"],
+                "flagged_segments": result["flagged_segments"],
+            },
+        })
+    except WebSocketDisconnect:
+        print("Client disconnected")
