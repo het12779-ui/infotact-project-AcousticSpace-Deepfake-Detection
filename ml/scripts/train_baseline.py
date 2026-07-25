@@ -77,9 +77,13 @@ if __name__ == "__main__":
     model = ASTForAudioClassification.from_pretrained(MODEL_ID, num_labels=2, ignore_mismatched_sizes=True)
     
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
-    best_eer = 1.0
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=1, verbose=True)
     
-    for epoch in range(3):
+    best_eer = 1.0
+    patience = 3
+    epochs_no_improve = 0
+    
+    for epoch in range(15):
         model.train()
         for batch in train_loader:
             labels_batch = batch.pop("labels")
@@ -92,7 +96,17 @@ if __name__ == "__main__":
         acc, eer = evaluate(model, val_loader)
         print(f"Epoch {epoch+1}: val_accuracy={acc:.3f}, val_EER={eer:.3f}")
         
+        scheduler.step(eer)
+        
         if eer < best_eer:
             best_eer = eer
+            epochs_no_improve = 0
             torch.save(model.state_dict(), f"{CHECKPOINT_DIR}/best_model.pt")
             print(f"Saved new best checkpoint (EER={eer:.3f})")
+        else:
+            epochs_no_improve += 1
+            print(f"No improvement for {epochs_no_improve} epoch(s).")
+            if epochs_no_improve >= patience:
+                print("Early stopping triggered. Training stopped.")
+                break
+
