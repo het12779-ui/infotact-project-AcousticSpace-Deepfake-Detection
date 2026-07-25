@@ -19,6 +19,10 @@ def time_stretch(waveform: np.ndarray, rate: Optional[float] = None) -> np.ndarr
         rate = float(np.random.uniform(0.9, 1.1))
     return librosa.effects.time_stretch(y=waveform, rate=rate)
 
+def simulate_clipping(waveform: np.ndarray, threshold: float = 0.9) -> np.ndarray:
+    """Apply non-linear distortion (clipping) to the waveform to simulate poor recording quality."""
+    return np.clip(waveform, -threshold, threshold)
+
 def augment_waveform(waveform: np.ndarray, sr: int) -> np.ndarray:
     """Apply a random combination of augmentations to the waveform."""
     if np.random.rand() < 0.5:
@@ -27,4 +31,6 @@ def augment_waveform(waveform: np.ndarray, sr: int) -> np.ndarray:
         waveform = pitch_shift(waveform, sr)
     if np.random.rand() < 0.3:
         waveform = time_stretch(waveform)
+    if np.random.rand() < 0.3:
+        waveform = simulate_clipping(waveform)
     return waveform
