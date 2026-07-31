@@ -1,6 +1,7 @@
 import numpy as np
 import librosa
-from typing import Optional
+from typing import Optional, List
+import scipy.signal
 
 def add_gaussian_noise(waveform: np.ndarray, noise_level: float = 0.005) -> np.ndarray:
     """Add Gaussian noise to the waveform."""
@@ -23,7 +24,18 @@ def simulate_clipping(waveform: np.ndarray, threshold: float = 0.9) -> np.ndarra
     """Apply non-linear distortion (clipping) to the waveform to simulate poor recording quality."""
     return np.clip(waveform, -threshold, threshold)
 
-def augment_waveform(waveform: np.ndarray, sr: int) -> np.ndarray:
+def apply_rir(waveform: np.ndarray, rir: np.ndarray) -> np.ndarray:
+    """Apply Room Impulse Response via convolution."""
+    # Convolution with RIR makes the audio sound like it's in a specific room
+    convolved = scipy.signal.fftconvolve(waveform, rir, mode='full')
+    # Match the original length
+    convolved = convolved[:len(waveform)]
+    # Normalize to prevent clipping
+    if np.max(np.abs(convolved)) > 0:
+        convolved = convolved / np.max(np.abs(convolved))
+    return convolved
+
+def augment_waveform(waveform: np.ndarray, sr: int, rir_waveforms: Optional[List[np.ndarray]] = None) -> np.ndarray:
     """Apply a random combination of augmentations to the waveform."""
     if np.random.rand() < 0.5:
         waveform = add_gaussian_noise(waveform)
@@ -33,4 +45,8 @@ def augment_waveform(waveform: np.ndarray, sr: int) -> np.ndarray:
         waveform = time_stretch(waveform)
     if np.random.rand() < 0.3:
         waveform = simulate_clipping(waveform)
+    if rir_waveforms and np.random.rand() < 0.7:  # High probability to apply RIR if available
+        import random
+        rir = random.choice(rir_waveforms)
+        waveform = apply_rir(waveform, rir)
     return waveform
