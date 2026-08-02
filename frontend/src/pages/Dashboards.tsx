@@ -7,7 +7,6 @@ interface HistoryEntry {
 }
 export default function Dashboard() {
     const [entries, setEntries] = useState<HistoryEntry[]>([]);
-    1
 
     const [loading, setLoading] = useState(true);
     useEffect(() => {
