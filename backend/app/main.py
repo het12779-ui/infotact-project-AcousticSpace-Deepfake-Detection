@@ -21,9 +21,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from app.core.config import MODEL_VERSION_NAME, MODEL_CHECKPOINT_PATH
+
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+@app.get("/model-info")
+def model_info():
+    return {"model_version": MODEL_VERSION_NAME, "checkpoint_path": MODEL_CHECKPOINT_PATH}
 
 @app.post("/api/v1/predict", response_model=PredictionResponse)
 async def predict_v1(file: UploadFile = File(...)):
