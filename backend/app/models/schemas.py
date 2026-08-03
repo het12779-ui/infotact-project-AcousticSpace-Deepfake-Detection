@@ -12,4 +12,5 @@ class PredictionResponse(BaseModel):
     confidence: float
     rir_mismatch_score: Optional[float] = None
     breathing_score: Optional[float] = None
+    fusion_enabled: bool = True
     flagged_segments: List[SegmentFlag] = []
