@@ -8,8 +8,6 @@ export function useWebSocketPredict() {
         setResult(null);
         const ws = new WebSocket("ws://localhost:8000/ws/predict");
 
-        1
-
         ws.onopen = () => {
             file.arrayBuffer().then((buffer) => ws.send(buffer));
         };

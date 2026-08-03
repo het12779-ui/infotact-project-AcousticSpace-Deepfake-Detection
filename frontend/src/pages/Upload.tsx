@@ -15,7 +15,11 @@ export default function Upload() {
     if (useLive) analyze(file);
   };
 
-  const displayedResult = useLive ? wsResult : result;
+  const displayedResult = useLive
+    ? wsResult
+      ? { ...wsResult, filename: selectedFile?.name || "Uploaded File" }
+      : null
+    : result;
 
   return (
     <div className="max-w-2xl mx-auto p-6">
