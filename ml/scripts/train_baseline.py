@@ -14,12 +14,13 @@ MODEL_ID = "MIT/ast-finetuned-audioset-10-10-0.4593"
 CHECKPOINT_DIR = "../checkpoints"
 
 class SpoofDataset(Dataset):
-    def __init__(self, file_paths, labels, feature_extractor, sr=16000, augment=False):
+    def __init__(self, file_paths, labels, feature_extractor, sr=16000, augment=False, rir_waveforms=None):
         self.file_paths = file_paths
         self.labels = labels
         self.feature_extractor = feature_extractor
         self.sr = sr
         self.augment = augment
+        self.rir_waveforms = rir_waveforms
 
     def __len__(self):
         return len(self.file_paths)
@@ -27,7 +28,7 @@ class SpoofDataset(Dataset):
     def __getitem__(self, idx):
         waveform, _ = librosa.load(self.file_paths[idx], sr=self.sr)
         if self.augment:
-            waveform = augment_waveform(waveform, self.sr)
+            waveform = augment_waveform(waveform, self.sr, rir_waveforms=self.rir_waveforms)
         inputs = self.feature_extractor(waveform, sampling_rate=self.sr, return_tensors="pt")
         item = {k: v.squeeze(0) for k, v in inputs.items()}
         item["labels"] = torch.tensor(self.labels[idx])
@@ -55,6 +56,14 @@ def evaluate(model, loader):
 if __name__ == "__main__":
     os.makedirs(CHECKPOINT_DIR, exist_ok=True)
     
+    import glob
+    rir_files = glob.glob(os.path.join("../data/rirs", "*.wav"))
+    rir_waveforms = []
+    for f in rir_files:
+        rir, _ = librosa.load(f, sr=16000)
+        rir_waveforms.append(rir)
+    print(f"Loaded {len(rir_waveforms)} RIRs for augmentation.")
+    
     feature_extractor = ASTFeatureExtractor.from_pretrained(MODEL_ID)
     file_paths, labels = load_combined_dataset()
     
@@ -68,7 +77,7 @@ if __name__ == "__main__":
     
     print(f"Train: {len(train_paths)} samples | Val: {len(val_paths)} samples")
     
-    train_ds = SpoofDataset(train_paths, train_labels, feature_extractor, augment=True)
+    train_ds = SpoofDataset(train_paths, train_labels, feature_extractor, augment=True, rir_waveforms=rir_waveforms)
     val_ds = SpoofDataset(val_paths, val_labels, feature_extractor, augment=False)
     
     train_loader = DataLoader(train_ds, batch_size=4, shuffle=True)

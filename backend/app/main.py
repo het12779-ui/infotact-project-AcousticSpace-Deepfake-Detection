@@ -95,6 +95,7 @@ async def websocket_predict(websocket: WebSocket):
             os.remove(tmp_path)
             
         await websocket.send_json({"stage": "running_model", "message": "Running AST classifier"})
+        log_prediction("live_stream.wav", result["is_fake"], result["confidence"])
         await websocket.send_json({
             "stage": "done",
             "result": {
