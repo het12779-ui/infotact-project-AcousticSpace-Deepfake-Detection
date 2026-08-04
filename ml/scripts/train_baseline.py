@@ -86,7 +86,7 @@ if __name__ == "__main__":
     model = ASTForAudioClassification.from_pretrained(MODEL_ID, num_labels=2, ignore_mismatched_sizes=True)
     
     optimizer = torch.optim.AdamW(model.parameters(), lr=1e-5)
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=1, verbose=True)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=1)
     
     best_eer = 1.0
     patience = 3
