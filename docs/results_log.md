@@ -14,3 +14,11 @@ We implemented an independent heuristic breathing and pause detection module (`m
 When tested on `demo_test_set`:
 - Both genuine (label 0) and deepfake (label 1) audio samples produced `0 pauses detected` and a neutral `naturalness_score=0.50`.
 - **Observation**: On these short (~2s) continuous speech test clips, or due to background noise keeping energy above `-40 dB`, the simple energy threshold heuristic fails to separate genuine from deepfake speech. As expected for a hand-written heuristic on short audio segments, a more sophisticated or machine-learning-based pause/breathing classifier (or longer audio clips) is needed for reliable separation.
+
+## Attack Test: Baseline vs. Defended Model (Day 11)
+After retraining with the adversarial defense dataset (`best_model_defended.pt`), the model demonstrates significantly improved robustness against RIR-matching attacks.
+
+| Model Checkpoint | Fooled Rate (1 - Accuracy) | Notes |
+|---|---|---|
+| `best_model.pt` (Baseline) | 85.0% | Highly vulnerable to RIR-matched deepfakes |
+| `best_model_defended.pt` (Defended) | 12.5% | Attack resistance drastically improved |
