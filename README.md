@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div align="center">
 
 # 🎙️ AcousticSpace
@@ -233,3 +234,12 @@ infotact-project-AcousticSpace-Deepfake-Detection/
 **AcousticSpace** • Built for the Mid-Project Review & Technical Evaluation
 
 </div>
+=======
+# AcousticSpace
+Deepfake detection via Room Impulse Response (RIR) mismatch and breathing-pattern analysis.
+
+## Running the project
+1. Backend: `docker compose up --build` (from the repo root)
+2. Frontend: `cd frontend && npm install && npm run dev`
+3. Open the printed frontend URL, upload an audio file, and view results on the Upload, History, and Dashboard pages.
+>>>>>>> 1cf0c41ffca8385eab1c8f76d31f2d43b4258cbe
