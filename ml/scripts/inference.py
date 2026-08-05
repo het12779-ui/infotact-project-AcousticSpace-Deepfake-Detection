@@ -4,7 +4,10 @@ from transformers import ASTFeatureExtractor, ASTForAudioClassification
 import os
 
 MODEL_ID = "MIT/ast-finetuned-audioset-10-10-0.4593"
-CHECKPOINT_PATH = os.path.join(os.path.dirname(__file__), "..", "checkpoints", "best_model.pt")
+CHECKPOINT_PATH = os.getenv(
+    "MODEL_CHECKPOINT_PATH",
+    os.path.join(os.path.dirname(__file__), "..", "checkpoints", "best_model.pt"),
+)
 
 _feature_extractor = None
 _model = None

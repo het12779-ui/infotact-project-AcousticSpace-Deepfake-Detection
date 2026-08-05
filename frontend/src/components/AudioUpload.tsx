@@ -32,7 +32,8 @@ export default function AudioUpload({ onResult, onFileSelected }: AudioUploadPro
         body: formData,
       });
       if (!res.ok) {
-        throw new Error(`Upload failed with status ${res.status}`);
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.detail || `Upload failed with status ${res.status}`);
       }
       const data = await res.json();
       onResult(data);
