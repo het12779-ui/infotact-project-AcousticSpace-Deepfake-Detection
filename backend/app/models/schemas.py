@@ -6,6 +6,12 @@ class SegmentFlag(BaseModel):
     end_time: float
     reason: str
 
+class AcousticComparison(BaseModel):
+    voice_rt60: Optional[float] = None
+    voice_drr: Optional[float] = None
+    bg_rt60: Optional[float] = None
+    bg_drr: Optional[float] = None
+
 class PredictionResponse(BaseModel):
     filename: str
     is_fake: bool
@@ -14,3 +20,4 @@ class PredictionResponse(BaseModel):
     breathing_score: Optional[float] = None
     fusion_enabled: bool = True
     flagged_segments: List[SegmentFlag] = []
+    acoustic_comparison: Optional[AcousticComparison] = None
