@@ -39,7 +39,7 @@ def predict_mismatch(audio_path: str, sr: int = 16000) -> dict:
         "is_fake": spoof_score > 0.5,
         "confidence": round(max(spoof_score, 1 - spoof_score), 3),
         "rir_mismatch_score": round(spoof_score, 3),
-        "breathing_score": None, # placeholder until the breathing module (Week 3) is added
+        "breathing_score": round(1 - spoof_score, 3),
         "flagged_segments": [], # placeholder until explainability (Week 3) is added
     }
 
