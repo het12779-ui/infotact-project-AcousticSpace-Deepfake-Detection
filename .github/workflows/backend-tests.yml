@@ -17,6 +17,9 @@ jobs:
         with:
           python-version: "3.8"
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          sudo apt-get update && sudo apt-get install -y libsndfile1 ffmpeg
+          pip install -r requirements.txt
+          pip install -r ../ml/requirements.txt
       - name: Run tests
         run: pytest tests/ -v
