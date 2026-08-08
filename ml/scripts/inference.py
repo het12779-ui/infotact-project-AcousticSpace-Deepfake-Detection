@@ -2,6 +2,8 @@ import torch
 import librosa
 from transformers import ASTFeatureExtractor, ASTForAudioClassification
 import os
+from fusion import get_breathing_score, fuse_scores
+from explainability import find_suspicious_segments
 
 MODEL_ID = "MIT/ast-finetuned-audioset-10-10-0.4593"
 CHECKPOINT_PATH = os.getenv(
@@ -35,12 +37,15 @@ def predict_mismatch(audio_path: str, sr: int = 16000) -> dict:
         logits = model(**inputs).logits
         probs = torch.softmax(logits, dim=-1)[0]
         spoof_score = probs[1].item()
+        breathing_score = get_breathing_score(audio_path, sr)
+        fused_score = fuse_scores(spoof_score, breathing_score)
+        flagged_segments = find_suspicious_segments(audio_path, model, feature_extractor, sr=sr)
     return {
-        "is_fake": spoof_score > 0.5,
-        "confidence": round(max(spoof_score, 1 - spoof_score), 3),
+        "is_fake": fused_score > 0.5,
+        "confidence": round(max(fused_score, 1 - fused_score), 3),
         "rir_mismatch_score": round(spoof_score, 3),
-        "breathing_score": round(1 - spoof_score, 3),
-        "flagged_segments": [], # placeholder until explainability (Week 3) is added
+        "breathing_score": round(breathing_score, 3),
+        "flagged_segments": flagged_segments,
     }
 
 if __name__ == "__main__":
