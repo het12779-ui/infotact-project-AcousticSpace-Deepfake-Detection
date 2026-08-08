@@ -1,4 +1,5 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, UploadFile, File, HTTPException, WebSocket, WebSocketDisconnect, Request
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.models.schemas import PredictionResponse, SegmentFlag, AcousticComparison
 from app.core.history import log_prediction, get_history
@@ -24,6 +25,22 @@ app.add_middleware(
 )
 
 from app.core.config import MODEL_VERSION_NAME, MODEL_CHECKPOINT_PATH
+
+@app.get("/")
+def root():
+    return {
+        "name": "AcousticSpace API",
+        "version": "1.0",
+        "model_version": MODEL_VERSION_NAME,
+        "docs": "/docs",
+    }
+
+@app.exception_handler(Exception)
+async def generic_exception_handler(request: Request, exc: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Unexpected server error: {str(exc)}"},
+    )
 
 @app.get("/health")
 def health_check():
