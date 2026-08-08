@@ -29,7 +29,7 @@ def load_model():
         _model.eval()
     return _feature_extractor, _model
 
-def predict_mismatch(audio_path: str, sr: int = 16000) -> dict:
+def predict_mismatch(audio_path: str, sr: int = 16000, fast_mode: bool = False) -> dict:
     feature_extractor, model = load_model()
     waveform, _ = librosa.load(audio_path, sr=sr)
     inputs = feature_extractor(waveform, sampling_rate=sr, return_tensors="pt")
@@ -39,7 +39,7 @@ def predict_mismatch(audio_path: str, sr: int = 16000) -> dict:
         spoof_score = probs[1].item()
         breathing_score = get_breathing_score(audio_path, sr)
         fused_score = fuse_scores(spoof_score, breathing_score)
-        flagged_segments = find_suspicious_segments(audio_path, model, feature_extractor, sr=sr)
+        flagged_segments = find_suspicious_segments(audio_path, model, feature_extractor, sr=sr, fast_mode=fast_mode)
     return {
         "is_fake": fused_score > 0.5,
         "confidence": round(max(fused_score, 1 - fused_score), 3),
