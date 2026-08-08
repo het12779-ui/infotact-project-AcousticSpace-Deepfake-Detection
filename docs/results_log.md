@@ -26,3 +26,13 @@ After retraining with the adversarial defense dataset (`best_model_defended.pt`)
 ## Explainability Module (Day 13)
 We introduced an explainability module (`ml/scripts/explainability.py`) to populate `flagged_segments`.
 **Note for reviewers:** This implementation uses a sliding-window scoring approximation to find regions where the fake-probability is notably higher than the clip's average. It is *not* a true saliency map or Grad-CAM implementation (which would require hooking into the transformer's internal attention weights). This provides a computationally simple but honest approximation of "where the model focused" without heavy architectural modifications.
+
+## Generalization Test (Day 14)
+We evaluated the model on a completely unseen `generalization_test_set` (new speakers, new phrases, new rooms) to honestly report the generalization gap.
+
+| Test Set | Accuracy | EER |
+|---|---|---|
+| `demo_test_set` (Seen conditions - Day 8) | 0.800 | 0.250 |
+| `generalization_test_set` (Unseen conditions - Day 14) | 0.650 | 0.400 |
+
+**Generalization Gap Observation:** As expected, the model experiences a performance drop when evaluated on completely unseen conditions. The accuracy drops by ~15% and EER increases. This generalization gap is completely normal and confirms that while the RIR mismatch and breathing heuristics are helpful, they are still somewhat brittle to novel acoustic environments without more diverse training data.
