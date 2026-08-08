@@ -3,7 +3,10 @@ import librosa
 import numpy as np
 
 def find_suspicious_segments(audio_path, model, feature_extractor, sr=16000, 
-                             window_sec=1.0, hop_sec=0.5, threshold_margin=0.15):
+                             window_sec=1.0, hop_sec=0.5, threshold_margin=0.15,
+                             fast_mode=False):
+    if fast_mode:
+        hop_sec = 1.0 # fewer windows scanned - faster, slightly coarser
     # Slides a window across the clip, scores each window independently, and
     # flags windows whose fake-probability is notably higher than the clip's
     # average. This approximates "where did the model focus" without needing
