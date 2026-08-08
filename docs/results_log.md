@@ -22,3 +22,7 @@ After retraining with the adversarial defense dataset (`best_model_defended.pt`)
 |---|---|---|
 | `best_model.pt` (Baseline) | 85.0% | Highly vulnerable to RIR-matched deepfakes |
 | `best_model_defended.pt` (Defended) | 12.5% | Attack resistance drastically improved |
+
+## Explainability Module (Day 13)
+We introduced an explainability module (`ml/scripts/explainability.py`) to populate `flagged_segments`.
+**Note for reviewers:** This implementation uses a sliding-window scoring approximation to find regions where the fake-probability is notably higher than the clip's average. It is *not* a true saliency map or Grad-CAM implementation (which would require hooking into the transformer's internal attention weights). This provides a computationally simple but honest approximation of "where the model focused" without heavy architectural modifications.

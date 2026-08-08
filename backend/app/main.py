@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from app.models.schemas import PredictionResponse, SegmentFlag
+from app.models.schemas import PredictionResponse, SegmentFlag, AcousticComparison
 from app.core.history import log_prediction, get_history
 import sys
 import os
@@ -8,6 +8,7 @@ import tempfile
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "ml", "scripts"))
 from inference import predict_mismatch
+from segment_features import extract_voice_bg_features
 
 ALLOWED_EXTENSIONS = {".wav", ".mp3", ".flac", ".ogg", ".m4a"}
 MAX_FILE_SIZE_MB = 20
@@ -51,6 +52,7 @@ async def predict_v1(file: UploadFile = File(...)):
 
     try:
         result = predict_mismatch(tmp_path)
+        acoustic_feats = extract_voice_bg_features(tmp_path)
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Could not process audio file: {e}")
     finally:
@@ -64,6 +66,7 @@ async def predict_v1(file: UploadFile = File(...)):
         rir_mismatch_score=result["rir_mismatch_score"],
         breathing_score=result["breathing_score"],
         flagged_segments=[SegmentFlag(**s) for s in result["flagged_segments"]],
+        acoustic_comparison=AcousticComparison(**acoustic_feats),
     )
 
 @app.post("/predict", response_model=PredictionResponse)
