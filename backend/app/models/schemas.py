@@ -21,3 +21,4 @@ class PredictionResponse(BaseModel):
     fusion_enabled: bool = True
     flagged_segments: List[SegmentFlag] = []
     acoustic_comparison: Optional[AcousticComparison] = None
+    inference_time_ms: Optional[float] = None
