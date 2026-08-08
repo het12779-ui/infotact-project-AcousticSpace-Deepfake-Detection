@@ -32,6 +32,11 @@ Voice samples used: 5
 
 ## Generalization test set
 Built from TTS phrases and room configurations never used anywhere in training or the earlier held-out/attack test sets. This is a synthetic distribution-shift test, not a real external corpus (e.g. MLAAD or an "in-the-wild" dataset) - a real external corpus is a good next upgrade if time and dataset access allow.
+## Training & Test Sets (Adversarial & Generalization)
+- Demo test set (held out): 5 samples curated via prepare_demo_set.py (data/demo_test_set/), used for the team's end-to-end integration test - not used during training.
+- Attack test set: 5 adversarial RIR-matched deepfake samples (data/attack_test_set/) to evaluate model robustness against RIR-matching attacks.
+- Defense training set: 125 RIR-matched adversarial training samples (data/defense_training_set/) to train the model against RIR-matching spoofing attacks.
+- Generalization test set: 10 samples (data/generalization_test_set/) representing unseen noise and room conditions to evaluate out-of-distribution performance.
 
 ## Known limitations
 - Background "noise" is currently synthetic white/pink noise shaped by a convolved RIR, not a real recorded ambience track - a real limitation to mention honestly in the report.

@@ -53,12 +53,24 @@ def random_new_rooms(n=6, seed=99):
         except Exception as e:
             print(f"Skipped room {i}: {e}")
     return rooms
+import glob
+from scipy.signal import fftconvolve
+
+RIR_DIR = "../data/rirs" if os.path.exists("../data/rirs") else "data/rirs"
+TTS_DIR = "../data/tts_samples" if os.path.exists("../data/tts_samples") else "data/tts_samples"
+REAL_DIR = "../data/samples" if os.path.exists("../data/samples") else "data/samples"
+OUT_DIR = "../data/generalization_test_set" if os.path.exists("../data") else "data/generalization_test_set"
+SR = 16000
+
+def load_rir(name):
+    rir, _ = librosa.load(f"{RIR_DIR}/{name}.wav", sr=SR)
+    return rir / np.max(np.abs(rir))
 
 def convolve_and_normalize(signal, rir):
     out = fftconvolve(signal, rir)[:len(signal)]
     return out / (np.max(np.abs(out)) + 1e-8)
-
-def generate_background_noise(length, rir, noise_level=0.05):
+  
+def generate_background_noise(length, rir, noise_level=0.1):
     noise = np.random.normal(0, 1, length)
     noise = convolve_and_normalize(noise, rir)
     return noise * noise_level
