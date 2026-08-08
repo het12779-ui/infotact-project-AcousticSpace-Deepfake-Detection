@@ -55,8 +55,9 @@ async def predict_v1(file: UploadFile = File(...)):
 
     start_time = time.time()
     try:
+        loop = asyncio.get_event_loop()
         result = await asyncio.wait_for(
-            asyncio.to_thread(predict_mismatch, tmp_path),
+            loop.run_in_executor(None, predict_mismatch, tmp_path),
             timeout=TIMEOUT_SECONDS,
         )
         acoustic_feats = extract_voice_bg_features(tmp_path)
