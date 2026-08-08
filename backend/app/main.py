@@ -5,7 +5,8 @@ from app.core.history import log_prediction, get_history
 import sys
 import os
 import tempfile
-
+import time
+import asyncio
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "..", "ml", "scripts"))
 from inference import predict_mismatch
 from segment_features import extract_voice_bg_features
@@ -32,6 +33,8 @@ def health_check():
 def model_info():
     return {"model_version": MODEL_VERSION_NAME, "checkpoint_path": MODEL_CHECKPOINT_PATH}
 
+TIMEOUT_SECONDS = float(os.getenv("PREDICT_TIMEOUT_SECONDS", "30"))
+
 @app.post("/api/v1/predict", response_model=PredictionResponse)
 async def predict_v1(file: UploadFile = File(...)):
     ext = os.path.splitext(file.filename)[1].lower()
@@ -50,14 +53,22 @@ async def predict_v1(file: UploadFile = File(...)):
         tmp.write(contents)
         tmp_path = tmp.name
 
+    start_time = time.time()
     try:
-        result = predict_mismatch(tmp_path)
+        result = await asyncio.wait_for(
+            asyncio.to_thread(predict_mismatch, tmp_path),
+            timeout=TIMEOUT_SECONDS,
+        )
         acoustic_feats = extract_voice_bg_features(tmp_path)
+    except asyncio.TimeoutError:
+        raise HTTPException(status_code=504, detail=f"Prediction timed out after {TIMEOUT_SECONDS}s")
     except Exception as e:
         raise HTTPException(status_code=422, detail=f"Could not process audio file: {e}")
     finally:
-        os.remove(tmp_path)
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
 
+    inference_time_ms = round((time.time() - start_time) * 1000, 1)
     log_prediction(file.filename, result["is_fake"], result["confidence"])
     return PredictionResponse(
         filename=file.filename,
@@ -66,7 +77,8 @@ async def predict_v1(file: UploadFile = File(...)):
         rir_mismatch_score=result["rir_mismatch_score"],
         breathing_score=result["breathing_score"],
         flagged_segments=[SegmentFlag(**s) for s in result["flagged_segments"]],
-        acoustic_comparison=AcousticComparison(**acoustic_feats),
+        acoustic_comparison=AcousticComparison(**acoustic_feats) if "acoustic_feats" in locals() else None,
+        inference_time_ms=inference_time_ms,
     )
 
 @app.post("/predict", response_model=PredictionResponse)
