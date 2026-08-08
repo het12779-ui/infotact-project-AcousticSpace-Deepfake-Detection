@@ -49,3 +49,14 @@ We benchmarked the real-time inference latency of the complete pipeline (AST mod
 - **After `fast_mode`:** ~1.85s average per file
 
 Adding `fast_mode` to `explainability.py` (which increases the sliding window hop size from 0.5s to 1.0s) significantly speeds up inference, bringing latency down to acceptable levels for a smoother live demo, at the cost of slightly coarser segment boundaries.
+
+## FINAL RESULTS (frozen checkpoint: final_model_v1.pt, Day 18)
+| Test set | Accuracy | EER |
+|---|---|---|
+| Held-out demo set | 0.800 | 0.250 |
+| Attack test set | 0.875 | 0.150 |
+| Generalization test set | 0.650 | 0.400 |
+
+These are the exact numbers reported in the final presentation - produced
+by scripts/final_headline_results.py against the frozen checkpoint, not an
+intermediate training run.
