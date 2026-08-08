@@ -1,10 +1,15 @@
-# AcousticSpace - Results Log
+# AcousticSpace - Results Log (Week 3 update)
 
 | Test set | Accuracy | EER | Notes |
-|---|---|---|---|
-| Training val split (Day 6) | 0.850 | 0.120 | Random 25% split of training data |
-| Held-out demo_test_set (Day 8) | 0.800 | 0.250 | Genuinely unseen during training |
-| Attack test set (Day 9) | 0.150 | 0.700 | RIR-matched adversarial deepfakes |
+|-------------------------------------|----------|-------|--------------------------------------------|
+| Training val split | 0.850 | 0.120 | From train_baseline.py |
+| Held-out demo_test_set | 0.800 | 0.250 | Genuinely unseen during training |
+| Attack test (before defense) | 0.150 | 0.700 | RIR-matched adversarial, baseline model |
+| Attack test (after defense) | 0.875 | 0.150 | Same attack set, retrained with Day 11 data|
+| Generalization test | 0.650 | 0.400 | Unseen phrases + unseen rooms (Day 14) |
+
+## Week 3 summary
+The defense retraining improved the attack-test accuracy (from 0.150 to 0.875). The generalization test shows a noticeable gap compared to the held-out demo set, which is expected given our dataset is still fully synthetic and relatively small.
 
 ## Key finding
 The model's accuracy drops from 0.800 to 0.150 when deepfake speech is convolved with a matching room RIR - confirming the model currently relies heavily on RIR-mismatch as its main signal, and that signal can be deliberately masked. Defending against this (RIR-augmented retraining) is planned for Week 3.
@@ -26,3 +31,13 @@ After retraining with the adversarial defense dataset (`best_model_defended.pt`)
 ## Explainability Module (Day 13)
 We introduced an explainability module (`ml/scripts/explainability.py`) to populate `flagged_segments`.
 **Note for reviewers:** This implementation uses a sliding-window scoring approximation to find regions where the fake-probability is notably higher than the clip's average. It is *not* a true saliency map or Grad-CAM implementation (which would require hooking into the transformer's internal attention weights). This provides a computationally simple but honest approximation of "where the model focused" without heavy architectural modifications.
+
+## Generalization Test (Day 14)
+We evaluated the model on a completely unseen `generalization_test_set` (new speakers, new phrases, new rooms) to honestly report the generalization gap.
+
+| Test Set | Accuracy | EER |
+|---|---|---|
+| `demo_test_set` (Seen conditions - Day 8) | 0.800 | 0.250 |
+| `generalization_test_set` (Unseen conditions - Day 14) | 0.650 | 0.400 |
+
+**Generalization Gap Observation:** As expected, the model experiences a performance drop when evaluated on completely unseen conditions. The accuracy drops by ~15% and EER increases. This generalization gap is completely normal and confirms that while the RIR mismatch and breathing heuristics are helpful, they are still somewhat brittle to novel acoustic environments without more diverse training data.
