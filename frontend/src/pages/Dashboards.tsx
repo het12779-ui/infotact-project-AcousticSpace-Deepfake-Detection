@@ -5,6 +5,14 @@ interface HistoryEntry {
     is_fake: boolean;
     confidence: number;
 }
+// Update these numbers from docs/results_log.md whenever the model is retrained
+const MODEL_RESULTS = [
+    { name: "Validation split", accuracy: "0.850", eer: "0.200" },
+    { name: "Held-out demo set", accuracy: "0.800", eer: "0.250" },
+    { name: "Attack test (before defense)", accuracy: "0.750", eer: "0.300" },
+    { name: "Attack test (after defense)", accuracy: "0.875", eer: "0.150" },
+    { name: "Generalization test", accuracy: "0.650", eer: "0.400" },
+];
 export default function Dashboard() {
     const [entries, setEntries] = useState<HistoryEntry[]>([]);
 
@@ -41,6 +49,30 @@ export default function Dashboard() {
                     <div className="text-sm text-gray-400">Avg. confidence</div>
                 </div>
             </div>
+
+            {/* Model Performance Summary */}
+            <div className="mt-8">
+                <h2 className="text-lg font-semibold mb-3">Model Performance Summary</h2>
+                <table className="w-full text-left text-sm">
+                    <thead>
+                        <tr className="border-b border-gray-600 text-gray-400">
+                            <th className="py-2">Test Set</th>
+                            <th className="py-2">Accuracy</th>
+                            <th className="py-2">EER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {MODEL_RESULTS.map((r, i) => (
+                            <tr key={i} className="border-b border-gray-800">
+                                <td className="py-2">{r.name}</td>
+                                <td>{r.accuracy}</td>
+                                <td>{r.eer}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
             {total === 0 && (
                 <p className="text-gray-400 mt-6">No analyses yet - upload a file to see stats here.</p>
             )}
