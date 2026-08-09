@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 import Upload from "./pages/Upload";
 import History from "./pages/History";
 import Dashboard from "./pages/Dashboards";
+import ModelInfoBadge from "./components/ModelInfoBadge";
 
 export default function App() {
   return (
@@ -11,6 +12,8 @@ export default function App() {
         <Link to="/">Upload</Link>
         <Link to="/history">History</Link>
         <Link to="/dashboard">Dashboard</Link>
+        <Link to="/" className="font-semibold">AcousticSpace</Link>
+        <ModelInfoBadge />
       </nav>
       <Routes>
         <Route path="/" element={<Upload />} />
