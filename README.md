@@ -17,6 +17,12 @@
 
 </div>
 
+## Getting Started
+1. Clone this repo
+2. From the repo root: `docker compose up --build`
+3. Backend: http://localhost:8000 | Frontend: http://localhost:3000
+4. To regenerate the ML dataset/model from scratch, see `ml/README.md`
+
 ## 🌟 Overview
 
 As generative AI audio models produce increasingly hyper-realistic speech, traditional artifact-based detection methods fall short. **AcousticSpace** introduces a physics-aware and environment-centric detection paradigm: **Acoustic Environment Consistency Testing**.
@@ -113,50 +119,7 @@ AcousticSpace is structured as a decoupled three-tier system: the interactive UI
 
 ---
 
-## 🚀 Quickstart & Setup Guide
 
-### Option A: Complete Docker Deployment (Recommended for Review)
-You can launch the entire full-stack application (frontend + backend + ML environment) with a single command:
-
-```bash
-docker compose up --build
-```
-
-- **Frontend UI:** Open [http://localhost:5173](http://localhost:5173) in your browser.
-- **Backend API & Docs:** Visit [http://localhost:8000/docs](http://localhost:8000/docs) for Swagger UI or [http://localhost:8000/health](http://localhost:8000/health) for system health checks.
-
-> [!NOTE]
-> **Docker Build Notice:** Due to PyTorch and scientific computing libraries, initial Docker image construction takes approximately **3–5 minutes**. Subsequent runs use cached layers.
-
----
-
-### Option B: Local Development Setup
-
-#### 1. Backend Service (FastAPI)
-```bash
-# From repository root
-python -m venv venv
-venv\Scripts\activate          # Windows PowerShell
-# source venv/bin/activate     # Linux / macOS
-
-pip install -r backend/requirements.txt
-python -m uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
-```
-
-#### 2. Frontend Development Server (React + Vite)
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-#### 3. Standalone ML CLI Inference
-Test any audio file directly against the machine learning pipeline:
-```bash
-python ml/scripts/inference.py data/samples/sample1.wav
-```
-
----
 
 ## 📡 API Reference & Contract
 
