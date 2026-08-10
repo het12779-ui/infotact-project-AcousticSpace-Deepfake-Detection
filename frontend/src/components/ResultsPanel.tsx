@@ -15,6 +15,18 @@ interface ResultsPanelProps {
     acoustic_comparison?: AcousticComparison | null;
   };
 }
+interface PredictionResponse {
+filename: string;
+is_fake: boolean;
+confidence: number;
+rir_mismatch_score?: number;
+breathing_score?: number;
+flagged_segments: { start_time: number; end_time: number; reason: string }[];
+acoustic_comparison?: AcousticComparison;
+
+
+inference_time_ms?: number;
+}
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
   const percentage = Math.round(value * 100);
@@ -99,6 +111,11 @@ export default function ResultsPanel({ result }: ResultsPanelProps) {
         <strong>Prediction:</strong>{" "}
         <span className={result.is_fake ? "text-red-400 font-bold" : "text-green-400 font-bold"}>
           {result.is_fake ? "Fake (Synthetic)" : "Real (Authentic)"}
+          {result.inference_time_ms != null && (
+            <p className="text-xs text-gray-500 mb-3">
+              Analyzed in {result.inference_time_ms.toFixed(0)} ms
+            </p>
+          )}
         </span>
       </p>
       {result.confidence !== undefined && (
