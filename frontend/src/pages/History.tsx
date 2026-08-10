@@ -20,7 +20,7 @@ export default function History() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <LoadingSpinner label="Loading history..." />;</p>;
+  if (loading) return <LoadingSpinner label="Loading history..." />;
 
   return (
     <div className="max-w-2xl mx-auto p-6">

@@ -1,7 +1,3 @@
-interface ResultsPanelProps {
-
-  result: any;
-}
 interface AcousticComparison {
   voice_rt60?: number | null;
   voice_drr?: number | null;
@@ -10,14 +6,15 @@ interface AcousticComparison {
 }
 
 interface ResultsPanelProps {
-  result: {
+  result?: {
     filename?: string;
     is_fake?: boolean;
     confidence?: number;
     rir_mismatch_score?: number | null;
     breathing_score?: number | null;
+    inference_time_ms?: number | null;
     acoustic_comparison?: AcousticComparison | null;
-  };
+  } | null;
 }
 
 function ScoreBar({ label, value }: { label: string; value: number }) {
@@ -37,6 +34,7 @@ function ScoreBar({ label, value }: { label: string; value: number }) {
     </div>
   );
 }
+
 function ComparisonBar({ label, voiceValue, bgValue, unit }: {
   label: string; voiceValue: number;
   bgValue: number; unit: string
@@ -49,8 +47,7 @@ function ComparisonBar({ label, voiceValue, bgValue, unit }: {
         <span className="text-xs w-20">Voice</span>
         <div className="flex-1 bg-gray-700 rounded h-2">
           <div className="h-2 rounded bg-blue-500" style={{
-            width: `${(Math.abs(voiceValue) / max) *
-              100}%`
+            width: `${(Math.abs(voiceValue) / max) * 100}%`
           }} />
         </div>
         <span className="text-xs w-16 text-right">{voiceValue.toFixed(2)}{unit}</span>
@@ -59,8 +56,7 @@ function ComparisonBar({ label, voiceValue, bgValue, unit }: {
         <span className="text-xs w-20">Background</span>
         <div className="flex-1 bg-gray-700 rounded h-2">
           <div className="h-2 rounded bg-orange-500" style={{
-            width: `${(Math.abs(bgValue) / max) *
-              100}%`
+            width: `${(Math.abs(bgValue) / max) * 100}%`
           }} />
         </div>
         <span className="text-xs w-16 text-right">{bgValue.toFixed(2)}{unit}</span>
@@ -68,24 +64,9 @@ function ComparisonBar({ label, voiceValue, bgValue, unit }: {
     </div>
   );
 }
+
 export default function ResultsPanel({ result }: ResultsPanelProps) {
   if (!result) return null;
-
-  {
-    result.acoustic_comparison && (
-      <div className="mt-4">
-        <h3 className="text-sm font-semibold mb-2">Acoustic comparison (voice vs. background)</h3>
-        {result.acoustic_comparison.voice_rt60 != null && result.acoustic_comparison.bg_rt60 != null && (
-          <ComparisonBar label="RT60 (echo decay time)" voiceValue={result.acoustic_comparison.voice_rt60}
-            bgValue={result.acoustic_comparison.bg_rt60} unit="s" />
-        )}
-        {result.acoustic_comparison.voice_drr != null && result.acoustic_comparison.bg_drr != null && (
-          <ComparisonBar label="DRR (direct-to-reverberant ratio)" voiceValue={result.acoustic_comparison.
-            voice_drr} bgValue={result.acoustic_comparison.bg_drr} unit="dB" />
-        )}
-      </div>
-    )
-  }
 
   return (
     <div className="bg-gray-800 p-4 rounded border border-gray-700">
@@ -97,24 +78,18 @@ export default function ResultsPanel({ result }: ResultsPanelProps) {
         <strong>Prediction:</strong>{" "}
         <span className={result.is_fake ? "text-red-400 font-bold" : "text-green-400 font-bold"}>
           {result.is_fake ? "Fake (Synthetic)" : "Real (Authentic)"}
-          {result.inference_time_ms != null && (
-            <p className="text-xs text-gray-500 mb-3">
-              Analyzed in {result.inference_time_ms.toFixed(0)} ms
-            </p>
-          )}
         </span>
       </p>
+      {result.inference_time_ms != null && (
+        <p className="text-xs text-gray-500 mb-3">
+          Analyzed in {result.inference_time_ms.toFixed(0)} ms
+        </p>
+      )}
       {result.confidence !== undefined && (
-        <p className="text-sm">
+        <p className="text-sm mb-2">
           <strong>Confidence:</strong> {(result.confidence * 100).toFixed(1)}%
         </p>
       )}
-      {result.rir_mismatch_score !== undefined &&
-        result.rir_mismatch_score !== null && (
-          <p className="text-sm">
-            <strong>RIR mismatch score:</strong> {result.rir_mismatch_score}
-          </p>
-        )}
 
       {result.rir_mismatch_score !== undefined && result.rir_mismatch_score !== null && (
         <ScoreBar label="RIR mismatch score" value={result.rir_mismatch_score} />
@@ -125,6 +100,19 @@ export default function ResultsPanel({ result }: ResultsPanelProps) {
       <p className="text-xs text-gray-500 -mt-1 mb-2">
         Higher means the voice's room echo looks more artificial.
       </p>
+
+      {result.acoustic_comparison && (
+        <div className="mt-4 border-t border-gray-700 pt-3">
+          <h3 className="text-sm font-semibold mb-2">Acoustic comparison (voice vs. background)</h3>
+          {result.acoustic_comparison.voice_rt60 != null && result.acoustic_comparison.bg_rt60 != null && (
+            <ComparisonBar label="RT60 (echo decay time)" voiceValue={result.acoustic_comparison.voice_rt60}
+              bgValue={result.acoustic_comparison.bg_rt60} unit="s" />
+          )}
+          {result.acoustic_comparison.voice_drr != null && result.acoustic_comparison.bg_drr != null && (
+            <ComparisonBar label="DRR (direct-to-reverberant ratio)" voiceValue={result.acoustic_comparison.voice_drr} bgValue={result.acoustic_comparison.bg_drr} unit="dB" />
+          )}
+        </div>
+      )}
     </div>
   );
 }

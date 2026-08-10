@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 interface HistoryEntry {
     timestamp: string;
     filename: string;
