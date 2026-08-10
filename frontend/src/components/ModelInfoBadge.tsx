@@ -2,9 +2,6 @@ import { useEffect, useState } from "react";
 export default function ModelInfoBadge() {
     const [info, setInfo] = useState<{ model_version: string } | null>(null);
     useEffect(() => {
-
-        1
-
         fetch("http://localhost:8000/model-info")
             .then((res) => res.json())
             .then(setInfo)

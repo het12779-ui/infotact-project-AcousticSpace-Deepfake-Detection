@@ -7,13 +7,11 @@ import ModelInfoBadge from "./components/ModelInfoBadge";
 export default function App() {
   return (
     <BrowserRouter>
-      <nav className="flex gap-4 p-4 border-b border-gray-700">
-        <nav className="flex flex-wrap items-center gap-4 p-4 border-b border-gray-700"></nav>
-        <Link to="/" className="font-semibold">AcousticSpace</Link>
-        <Link to="/">Upload</Link>
-        <Link to="/history">History</Link>
-        <Link to="/dashboard">Dashboard</Link>
-        <Link to="/" className="font-semibold">AcousticSpace</Link>
+      <nav className="flex flex-wrap items-center gap-4 p-4 border-b border-gray-700">
+        <Link to="/" className="font-semibold text-white">AcousticSpace</Link>
+        <Link to="/" className="hover:text-blue-400">Upload</Link>
+        <Link to="/history" className="hover:text-blue-400">History</Link>
+        <Link to="/dashboard" className="hover:text-blue-400">Dashboard</Link>
         <ModelInfoBadge />
       </nav>
       <Routes>
@@ -24,3 +22,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
