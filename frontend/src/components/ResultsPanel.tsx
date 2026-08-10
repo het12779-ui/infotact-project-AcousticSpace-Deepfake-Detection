@@ -3,25 +3,39 @@ interface ResultsPanelProps {
   result: any;
 }
 interface AcousticComparison {
-  voice_rt60?: number;
-  voice_drr?: number;
-  bg_rt60?: number;
-  bg_drr?: number;
-
-
-
+  voice_rt60?: number | null;
+  voice_drr?: number | null;
+  bg_rt60?: number | null;
+  bg_drr?: number | null;
 }
-interface PredictionResponse {
-  filename: string;
-  is_fake: boolean;
-  confidence: number;
-  rir_mismatch_score?: number;
-  breathing_score?: number;
-  flagged_segments: { start_time: number; end_time: number; reason: string }[];
-  acoustic_comparison?: AcousticComparison;
 
+interface ResultsPanelProps {
+  result: {
+    filename?: string;
+    is_fake?: boolean;
+    confidence?: number;
+    rir_mismatch_score?: number | null;
+    breathing_score?: number | null;
+    acoustic_comparison?: AcousticComparison | null;
+  };
+}
 
-  inference_time_ms?: number;
+function ScoreBar({ label, value }: { label: string; value: number }) {
+  const percentage = Math.round(value * 100);
+  return (
+    <div className="my-2">
+      <div className="flex justify-between text-sm font-medium mb-1">
+        <span>{label}</span>
+        <span>{percentage}%</span>
+      </div>
+      <div className="w-full bg-gray-700 rounded-full h-2.5">
+        <div
+          className="bg-blue-500 h-2.5 rounded-full transition-all duration-300"
+          style={{ width: `${Math.min(100, Math.max(0, percentage))}%` }}
+        />
+      </div>
+    </div>
+  );
 }
 function ComparisonBar({ label, voiceValue, bgValue, unit }: {
   label: string; voiceValue: number;
