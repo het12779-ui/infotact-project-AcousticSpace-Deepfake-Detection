@@ -10,6 +10,8 @@ DATASETS = {
     "attack_test_set": "../data/attack_test_set",
     "defense_training_set": "../data/defense_training_set",
     "generalization_test_set": "../data/generalization_test_set",
+    "demo_samples": "../data/demo_samples",
+    "demo_showcase": "../data/demo_showcase",
 }
 
 def resolve_folder(folder):
