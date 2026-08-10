@@ -8,6 +8,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <nav className="flex gap-4 p-4 border-b border-gray-700">
+        <nav className="flex flex-wrap items-center gap-4 p-4 border-b border-gray-700"></nav>
         <Link to="/" className="font-semibold">AcousticSpace</Link>
         <Link to="/">Upload</Link>
         <Link to="/history">History</Link>

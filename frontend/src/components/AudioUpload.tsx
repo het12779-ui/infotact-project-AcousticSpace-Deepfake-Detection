@@ -60,6 +60,15 @@ export default function AudioUpload({ onResult, onFileSelected }: AudioUploadPro
       >
         {loading ? "Analyzing..." : "Analyze Audio"}
       </button>
+      <div
+      role="button"
+      tabIndex={0}
+      aria-label="Upload audio file for deepfake analysis"
+      onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
+// ...rest of the props stay the same
+>
+  
+</div>
 
       {error && (
         <div className="bg-red-900/40 border border-red-500 text-red-200 p-3 rounded mt-4 text-sm">

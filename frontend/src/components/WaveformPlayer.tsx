@@ -31,6 +31,13 @@ export default function WaveformPlayer({ file, flaggedSegments = [] }: WaveformP
       {audioUrl && (
         <audio controls src={audioUrl} className="w-full mb-2" />
       )}
+      <button
+aria-label="Play or pause audio"
+onClick={() => wavesurferRef.current?.playPause()}
+className="mt-2 px-3 py-1 bg-blue-600 rounded text-sm text-white"
+>
+Play / Pause
+</button>
       {flaggedSegments.length > 0 && (
         <div className="mt-2 text-xs text-red-400">
           <strong>Flagged Segments:</strong>
